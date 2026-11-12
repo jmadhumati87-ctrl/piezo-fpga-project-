@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>FPGA-Controlled Programmable Gain Amplifier</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #0f172a;
+      padding: 15px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    /* HERO */
+
+    .hero {
+      min-height: 85vh;
+      background: linear-gradient(135deg, #0f172a, #1e3a5f);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 60px 10%;
+    }
+
+    .hero-content {
+      max-width: 850px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #cbd5e1;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 24px;
+      background: white;
+      color: #0f172a;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    /* SECTIONS */
+
+    section {
+      padding: 80px 10%;
+    }
+
+    .section-title {
+      font-size: 34px;
+      margin-bottom: 15px;
+      color: #0f172a;
+    }
+
+    .section-subtitle {
+      color: #64748b;
+      max-width: 750px;
+      margin-bottom: 40px;
+    }
+
+    /* DARK SECTION */
+
+    .dark-section {
+      background: #0f172a;
+      color: white;
+    }
+
+    .dark-section .section-title {
+      color: white;
+    }
+
+    .dark-section .section-subtitle {
+      color: #cbd5e1;
+    }
+
+    /* CARDS */
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      color: #0f172a;
+    }
+
+    .problem-item {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    /* SIGNAL FLOW */
+
+    .flow-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .flow-box {
+      background: white;
+      padding: 20px;
+      min-width: 160px;
+      text-align: center;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .arrow {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    /* STEPS */
+
+    .step {
+      background: white;
+      padding: 25px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      border-left: 5px solid #2563eb;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    /* TABLE */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: #0f172a;
+      color: white;
+    }
+
+    /* RESULTS */
+
+    .result-card {
+      background: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .result-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    /* FOOTER */
+
+    footer {
+      background: #020617;
+      color: #cbd5e1;
+      text-align: center;
+      padding: 50px 10%;
+    }
+
+    footer h2 {
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 768px) {
+
+      nav {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      section {
+        padding: 60px 7%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+
+  <nav>
+    <div class="logo">PIEZO • FPGA PROJECT</div>
+
+    <ul class="nav-links">
+      <li><a href="#concept">Concept</a></li>
+      <li><a href="#working">Working</a></li>
+      <li><a href="#control">FPGA Control</a></li>
+      <li><a href="#results">Results</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="hero-content">
+
+      <div class="badge">
+        MINI PROJECT • ELECTRONICS & COMMUNICATION ENGINEERING
+      </div>
+
+      <h1>
+        FPGA-Controlled Programmable Gain Amplifier Using a Piezoelectric Sensor
+      </h1>
+
+      <p>
+        A smart system designed to detect vibration using a piezoelectric
+        sensor and provide digitally selectable amplification using
+        FPGA-based control.
+      </p>
+
+      <a href="#concept" class="btn">
+        Explore Project ↓
+      </a>
+
+    </div>
+
+  </section>
+
+  <!-- PROBLEM -->
+
+  <section class="dark-section">
+
+    <h2 class="section-title">The Problem</h2>
+
+    <p class="section-subtitle">
+      Piezoelectric sensors produce electrical signals based on mechanical
+      vibration. However, the amplitude of these signals can vary significantly.
+    </p>
+
+    <div class="grid">
+
+      <div class="problem-item">
+        <h3>📉 Small Signals</h3>
+        <p>Low-intensity vibrations may generate signals that require amplification.</p>
+      </div>
+
+      <div class="problem-item">
+        <h3>📊 Variable Amplitude</h3>
+        <p>The sensor output changes depending on vibration intensity.</p>
+      </div>
+
+      <div class="problem-item">
+        <h3>🎛 Manual Adjustment</h3>
+        <p>Traditional potentiometer-based adjustment is not digitally controlled.</p>
+      </div>
+
+      <div class="problem-item">
+        <h3>⚡ Digital Control</h3>
+        <p>A programmable system is needed for electronic gain selection.</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- CONCEPT -->
+
+  <section id="concept">
+
+    <h2 class="section-title">Project Concept</h2>
+
+    <p class="section-subtitle">
+      The proposed system combines piezoelectric sensing, analog signal
+      amplification and FPGA-based digital control.
+    </p>
+
+    <div class="flow-container">
+
+      <div class="flow-box">
+        🔨<br><br>
+        Mechanical Vibration
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-box">
+        ⚡<br><br>
+        Piezoelectric Sensor
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-box">
+        🔧<br><br>
+        Signal Conditioning
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-box">
+        📈<br><br>
+        Programmable Gain Amplifier
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-box">
+        📊<br><br>
+        Amplified Output
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- OBJECTIVES -->
+
+  <section>
+
+    <h2 class="section-title">Project Objectives</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>📡 Sense</h3>
+        <p>Detect mechanical vibration using a piezoelectric sensor.</p>
+      </div>
+
+      <div class="card">
+        <h3>📈 Amplify</h3>
+        <p>Amplify the variable-amplitude sensor signal.</p>
+      </div>
+
+      <div class="card">
+        <h3>💻 Control</h3>
+        <p>Use FPGA-based digital logic to select gain levels.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔬 Analyze</h3>
+        <p>Observe the output signal at different gain settings.</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- COMPONENTS -->
+
+  <section>
+
+    <h2 class="section-title">System Components</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>⚡ Piezoelectric Sensor</h3>
+        <p>Converts mechanical vibration into an electrical signal.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔧 Signal Conditioning</h3>
+        <p>Prepares and protects the sensor signal before amplification.</p>
+      </div>
+
+      <div class="card">
+        <h3>📈 Programmable Amplifier</h3>
+        <p>Amplifies the signal according to the selected gain level.</p>
+      </div>
+
+      <div class="card">
+        <h3>💻 FPGA</h3>
+        <p>Provides digital control signals for gain selection.</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- FPGA CONTROL -->
+
+  <section id="control">
+
+    <h2 class="section-title">FPGA Gain Control</h2>
+
+    <p class="section-subtitle">
+      The FPGA can implement digital logic to select different
+      amplification modes.
+    </p>
+
+    <table>
+
+      <tr>
+        <th>Control Signal</th>
+        <th>Gain</th>
+        <th>Function</th>
+      </tr>
+
+      <tr>
+        <td>00</td>
+        <td>×1</td>
+        <td>Minimum Amplification</td>
+      </tr>
+
+      <tr>
+        <td>01</td>
+        <td>×2</td>
+        <td>Moderate Amplification</td>
+      </tr>
+
+      <tr>
+        <td>10</td>
+        <td>×5</td>
+        <td>High Amplification</td>
+      </tr>
+
+      <tr>
+        <td>11</td>
+        <td>×10</td>
+        <td>Maximum Amplification</td>
+      </tr>
+
+    </table>
+
+  </section>
+
+  <!-- WORKING -->
+
+  <section id="working">
+
+    <h2 class="section-title">Working Principle</h2>
+
+    <div class="step">
+      <h3>Step 1 — Vibration Detection</h3>
+      <p>Mechanical vibration is applied to the piezoelectric sensor.</p>
+    </div>
+
+    <div class="step">
+      <h3>Step 2 — Signal Generation</h3>
+      <p>The piezoelectric sensor converts mechanical vibration into an electrical signal.</p>
+    </div>
+
+    <div class="step">
+      <h3>Step 3 — Signal Conditioning</h3>
+      <p>The sensor signal is prepared before entering the amplification stage.</p>
+    </div>
+
+    <div class="step">
+      <h3>Step 4 — FPGA Gain Selection</h3>
+      <p>The FPGA generates digital control signals to select the required gain.</p>
+    </div>
+
+    <div class="step">
+      <h3>Step 5 — Signal Amplification</h3>
+      <p>The programmable amplifier amplifies the signal according to the selected gain.</p>
+    </div>
+
+    <div class="step">
+      <h3>Step 6 — Output Observation</h3>
+      <p>The amplified output can be observed using a DSO or oscilloscope.</p>
+    </div>
+
+  </section>
+
+  <!-- RESULTS -->
+
+  <section id="results">
+
+    <h2 class="section-title">Expected Results</h2>
+
+    <p class="section-subtitle">
+      The system is expected to provide different output amplitudes
+      based on the selected gain level.
+    </p>
+
+    <div class="grid">
+
+      <div class="result-card">
+        <div class="result-number">×1</div>
+        <p>Low Gain Mode</p>
+      </div>
+
+      <div class="result-card">
+        <div class="result-number">×2</div>
+        <p>Moderate Gain Mode</p>
+      </div>
+
+      <div class="result-card">
+        <div class="result-number">×5</div>
+        <p>High Gain Mode</p>
+      </div>
+
+      <div class="result-card">
+        <div class="result-number">×10</div>
+        <p>Maximum Gain Mode</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- FUTURE -->
+
+  <section>
+
+    <h2 class="section-title">Future Scope</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>🤖 Automatic Gain Control</h3>
+        <p>The FPGA can automatically select gain based on signal amplitude.</p>
+      </div>
+
+      <div class="card">
+        <h3>📊 Digital Signal Processing</h3>
+        <p>The vibration signal can be processed and analyzed digitally.</p>
+      </div>
+
+      <div class="card">
+        <h3>📡 IoT Monitoring</h3>
+        <p>Sensor information can be transmitted for remote monitoring.</p>
+      </div>
+
+      <div class="card">
+        <h3>🏭 Industrial Applications</h3>
+        <p>The concept can be extended toward vibration monitoring systems.</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- CONCLUSION -->
+
+  <section class="dark-section">
+
+    <h2 class="section-title">Conclusion</h2>
+
+    <p class="section-subtitle">
+      This project integrates piezoelectric sensing, analog signal
+      amplification and FPGA-based digital control.
+    </p>
+
+    <p style="color:#cbd5e1; max-width:800px;">
+      The proposed system provides multiple selectable gain levels for
+      variable-amplitude piezoelectric sensor signals without continuous
+      manual potentiometer adjustment.
+    </p>
+
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer>
+
+    <h2>FPGA-Controlled Programmable Gain Amplifier</h2>
+
+    <p>Using a Piezoelectric Sensor</p>
+
+    <br>
+
+    <p>Electronics & Communication Engineering • Mini Project</p>
+
+    <br>
+
+    <p>© 2026 • Project Team</p>
+
+  </footer>
+
+</body>
+</html>
